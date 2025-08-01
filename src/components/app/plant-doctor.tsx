@@ -25,14 +25,6 @@ type Treatment = {
   biologicalMedicines: string;
 };
 
-type PlantRecord = {
-  id: string;
-  date: string;
-  image: string;
-  diagnosis: Diagnosis;
-  treatment: Treatment;
-}
-
 export function PlantDoctor() {
   const { toast } = useToast();
   const [isDiagnosisPending, startDiagnosisTransition] = useTransition();
@@ -106,25 +98,6 @@ export function PlantDoctor() {
     };
   };
 
-  useEffect(() => {
-    if (diagnosis && treatment && imagePreview) {
-      try {
-        const newRecord: PlantRecord = {
-          id: new Date().toISOString(),
-          date: new Date().toLocaleDateString(),
-          image: imagePreview,
-          diagnosis,
-          treatment,
-        };
-        const existingRecords = JSON.parse(localStorage.getItem('plant_doctor_history') || '[]');
-        const updatedRecords = [newRecord, ...existingRecords];
-        localStorage.setItem('plant_doctor_history', JSON.stringify(updatedRecords));
-      } catch (e) {
-        console.error("Không thể lưu bản ghi vào bộ nhớ cục bộ:", e);
-      }
-    }
-  }, [diagnosis, treatment, imagePreview]);
-
   const isLoading = isDiagnosisPending || isTreatmentPending;
 
   return (
@@ -171,22 +144,13 @@ export function PlantDoctor() {
                   <div className="bg-primary/10 p-2 rounded-lg">
                     <Bot className="text-primary w-5 h-5" />
                   </div>
-                  <span className="font-bold">Chẩn đoán của AI</span>
+                  <span className="font-bold">Kết quả &amp; Hướng điều trị</span>
                 </CardTitle>
               </CardHeader>
-              {isDiagnosisPending ? <DiagnosisSkeleton /> : diagnosis ? <DiagnosisResult diagnosis={diagnosis} /> : null}
-            </Card>
-
-            <Card className="overflow-hidden shadow-lg">
-               <CardHeader className="bg-muted/30">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded-lg">
-                    <Sparkles className="text-primary w-5 h-5" />
-                  </div>
-                  <span className="font-bold">Kế hoạch điều trị</span>
-                </CardTitle>
-              </CardHeader>
-              {isTreatmentPending ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (isDiagnosisPending ? <Skeleton className="h-4 w-48 mx-6 mb-6"/> : <CardContent><p className="text-muted-foreground">Đang chờ kết quả chẩn đoán...</p></CardContent>)}
+              <CardContent className="p-6 space-y-8">
+                {isDiagnosisPending ? <DiagnosisSkeleton /> : diagnosis ? <DiagnosisResult diagnosis={diagnosis} /> : null}
+                {isTreatmentPending ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (isDiagnosisPending ? <Skeleton className="h-4 w-48"/> : <p className="text-muted-foreground">Đang chờ kết quả chẩn đoán...</p>)}
+              </CardContent>
             </Card>
           </div>
         </div>
@@ -257,7 +221,7 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   }
 
   return (
-    <CardContent className="space-y-6">
+    <div className="space-y-6">
       <Alert variant={confidencePercent < 50 ? 'destructive' : 'default'} className="bg-card border-2">
         {getConfidenceIcon(confidencePercent)}
         <AlertTitle className="font-bold text-xl">{diagnosis.diseaseName}</AlertTitle>
@@ -286,14 +250,14 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
             </div>
         </div>
       </div>
-    </CardContent>
+    </div>
   );
 }
 
 
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
-    <CardContent className="space-y-6">
+    <div className="space-y-6">
       <div className="p-4 rounded-lg border bg-blue-500/5 border-blue-500/20">
         <div className="flex items-center gap-3 mb-3">
           <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
@@ -321,14 +285,14 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
             <p className="text-muted-foreground whitespace-pre-wrap pl-7 text-base leading-relaxed">{treatment.biologicalMedicines}</p>
           </div>
       </div>
-    </CardContent>
+    </div>
   );
 }
 
 
 function DiagnosisSkeleton() {
   return (
-    <CardContent className="space-y-6 pt-6">
+    <div className="space-y-6">
       <div className="space-y-3">
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-5 w-1/2" />
@@ -343,13 +307,13 @@ function DiagnosisSkeleton() {
         <Skeleton className="h-5 w-1/4 mb-4" />
         <Skeleton className="h-5 w-full" />
       </div>
-    </CardContent>
+    </div>
   );
 }
 
 function TreatmentSkeleton() {
   return (
-    <CardContent className="space-y-8 pt-6">
+    <div className="space-y-8 pt-6">
       <div className="space-y-3 p-4 border rounded-lg">
         <Skeleton className="h-6 w-1/3 mb-4" />
         <Skeleton className="h-4 w-full" />
@@ -361,6 +325,8 @@ function TreatmentSkeleton() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
       </div>
-    </CardContent>
+    </div>
   );
 }
+
+    
