@@ -21,9 +21,9 @@ const DiagnoseDiseaseInputSchema = z.object({
 export type DiagnoseDiseaseInput = z.infer<typeof DiagnoseDiseaseInputSchema>;
 
 const DiagnoseDiseaseOutputSchema = z.object({
-  diseaseName: z.string().describe('The name of the identified disease, if any.'),
-  confidence: z.number().describe('The confidence level of the disease identification (0-1).'),
-  description: z.string().describe('A description of the disease, its causes, and potential treatments.'),
+  diseaseName: z.string().describe('Tên của bệnh được xác định, nếu có.'),
+  confidence: z.number().describe('Mức độ tin cậy của việc xác định bệnh (0-1).'),
+  description: z.string().describe('Mô tả về bệnh, nguyên nhân và các phương pháp điều trị tiềm năng.'),
 });
 export type DiagnoseDiseaseOutput = z.infer<typeof DiagnoseDiseaseOutputSchema>;
 
@@ -35,11 +35,13 @@ const prompt = ai.definePrompt({
   name: 'diagnoseDiseasePrompt',
   input: {schema: DiagnoseDiseaseInputSchema},
   output: {schema: DiagnoseDiseaseOutputSchema},
-  prompt: `You are an expert plant pathologist. Analyze the provided image of a plant and identify any potential diseases.
+  prompt: `Bạn là một chuyên gia bệnh học thực vật. Hãy phân tích hình ảnh được cung cấp về một loại cây và xác định bất kỳ bệnh tiềm ẩn nào.
 
-  Provide the disease name, a confidence level (0-1), and a detailed description of the disease, its causes, and potential treatments.
+  Cung cấp tên bệnh, mức độ tin cậy (0-1), và mô tả chi tiết về bệnh, nguyên nhân và các phương pháp điều trị tiềm năng.
 
-  Image: {{media url=photoDataUri}}`,
+  Tất cả các phản hồi phải bằng tiếng Việt.
+
+  Hình ảnh: {{media url=photoDataUri}}`,
 });
 
 const diagnoseDiseaseFlow = ai.defineFlow(
