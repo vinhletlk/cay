@@ -47,6 +47,24 @@ export function PlantDoctor() {
     setTreatment(null);
   }, []);
 
+  const onGetTreatment = useCallback((diag: Diagnosis) => {
+    if (!diag) return;
+    startTreatmentTransition(async () => {
+      const result = await handleRecommend(diag.diseaseName, diag.description);
+      if ('error' in result) {
+        setError(result.error);
+        toast({
+          variant: "destructive",
+          title: "Đề xuất thất bại",
+          description: result.error,
+        });
+      } else {
+        setTreatment(result);
+      }
+    });
+  }, [startTreatmentTransition, toast]);
+
+
   const onDiagnose = (file: File) => {
     resetState();
     const reader = new FileReader();
@@ -65,6 +83,7 @@ export function PlantDoctor() {
           });
         } else {
           setDiagnosis(result);
+          onGetTreatment(result);
         }
       });
     };
@@ -78,23 +97,6 @@ export function PlantDoctor() {
       });
     };
   };
-
-  const onGetTreatment = () => {
-    if (!diagnosis) return;
-    startTreatmentTransition(async () => {
-      const result = await handleRecommend(diagnosis.diseaseName, diagnosis.description);
-      if ('error' in result) {
-        setError(result.error);
-        toast({
-          variant: "destructive",
-          title: "Đề xuất thất bại",
-          description: result.error,
-        });
-      } else {
-        setTreatment(result);
-      }
-    });
-  }
 
   // Save record to local storage when treatment is available
   useEffect(() => {
@@ -148,7 +150,7 @@ export function PlantDoctor() {
             </CardTitle>
             <CardDescription>AI của chúng tôi đã phân tích hình ảnh của bạn. Đây là kết quả.</CardDescription>
           </CardHeader>
-          <DiagnosisResult diagnosis={diagnosis} onGetTreatment={onGetTreatment} isPending={isTreatmentPending} />
+          <DiagnosisResult diagnosis={diagnosis} />
         </Card>
       )}
 
@@ -238,12 +240,11 @@ function ImageUploader({ onDiagnose, isPending, imagePreview }: { onDiagnose: (f
   );
 }
 
-function DiagnosisResult({ diagnosis, onGetTreatment, isPending }: { diagnosis: Diagnosis, onGetTreatment: () => void, isPending: boolean }) {
+function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   const confidencePercent = Math.round(diagnosis.confidence * 100);
   const confidenceColor = confidencePercent > 75 ? 'text-green-600' : confidencePercent > 50 ? 'text-yellow-600' : 'text-red-600';
 
   return (
-    <>
       <CardContent className="space-y-6">
         <div>
           <h3 className="font-semibold text-xl">{diagnosis.diseaseName}</h3>
@@ -258,13 +259,6 @@ function DiagnosisResult({ diagnosis, onGetTreatment, isPending }: { diagnosis: 
           <p className="text-muted-foreground whitespace-pre-wrap mt-1">{diagnosis.description}</p>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button onClick={onGetTreatment} disabled={isPending} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
-          {isPending ? 'Đang tạo...' : 'Lấy kế hoạch điều trị'}
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </CardFooter>
-    </>
   );
 }
 
@@ -346,3 +340,5 @@ function TreatmentSkeleton() {
     </Card>
   );
 }
+
+    
