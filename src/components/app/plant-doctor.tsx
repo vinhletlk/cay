@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState, useTransition } from 'react';
 import Image from 'next/image';
-import { Bot, CheckCircle, Info, Leaf, Pill, RefreshCw, ShieldAlert, Sparkles, Sprout, TestTube2, UploadCloud, AlertCircle, ChevronDown } from 'lucide-react';
+import { Bot, CheckCircle, Info, Leaf, Pill, RefreshCw, ShieldAlert, Sparkles, Sprout, TestTube2, UploadCloud, AlertCircle, ChevronDown, Trees } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleDiagnose, handleRecommend } from '@/app/actions';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 type Diagnosis = {
   plantName: string;
@@ -232,24 +233,40 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   
   return (
     <div className="space-y-6">
-       <Card className="bg-card border-none shadow-none p-0">
-        <CardHeader className="p-0">
-           <CardDescription className="text-md font-medium text-primary">{diagnosis.plantName}</CardDescription>
-          <CardTitle className="text-3xl font-bold text-foreground">{diagnosis.diseaseName}</CardTitle>
+      <Card className="bg-card border-none shadow-none p-0">
+        <CardHeader className="p-0 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 bg-primary/10 p-2.5 rounded-lg border border-primary/20 shadow-inner">
+                <Trees className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <CardDescription className="text-sm font-medium text-muted-foreground">Tên cây</CardDescription>
+              <CardTitle className="text-2xl font-bold text-primary">{diagnosis.plantName}</CardTitle>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 bg-destructive/10 p-2.5 rounded-lg border border-destructive/20 shadow-inner">
+                <AlertCircle className="w-6 h-6 text-destructive" />
+            </div>
+            <div>
+              <CardDescription className="text-sm font-medium text-muted-foreground">Chẩn đoán bệnh</CardDescription>
+              <CardTitle className="text-2xl font-bold text-destructive">{diagnosis.diseaseName}</CardTitle>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="p-0 mt-4 space-y-4">
-           <Alert className={cn("border-2 shadow-sm", getConfidenceBadge(confidencePercent))}>
-              <Sparkles className="h-5 w-5" />
-              <AlertTitle className="font-semibold">Độ tin cậy của AI: {confidencePercent}%</AlertTitle>
-              <AlertDescription>
-                 <Progress value={confidencePercent} className="w-full h-2 mt-2" />
-              </AlertDescription>
-            </Alert>
+        <CardContent className="p-0 mt-6 space-y-4">
+          <Alert className={cn("border-2 shadow-sm", getConfidenceBadge(confidencePercent))}>
+            <Sparkles className="h-5 w-5" />
+            <AlertTitle className="font-semibold">Độ tin cậy của AI: {confidencePercent}%</AlertTitle>
+            <AlertDescription>
+              <Progress value={confidencePercent} className="w-full h-2 mt-2" />
+            </AlertDescription>
+          </Alert>
           
           <div>
             <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" />
-                Mô tả chi tiết
+              <Info className="h-5 w-5 text-primary" />
+              Mô tả chi tiết
             </h4>
             <p className="text-muted-foreground text-base whitespace-pre-wrap pl-7 leading-relaxed">{diagnosis.description}</p>
           </div>
@@ -292,14 +309,13 @@ function MedicineCard({ medicine }: { medicine: Medicine }) {
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <div className="space-y-4 border-t border-dashed pt-6">
-      <Accordion type="multiple" className="w-full space-y-4">
+      <Accordion type="multiple" className="w-full space-y-4" defaultValue={['chemical-treatment', 'biological-treatment']}>
         <AccordionItem value="chemical-treatment" className="border rounded-lg bg-card shadow-sm">
           <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline text-blue-800 dark:text-blue-300">
             <div className="flex items-center gap-3">
               <TestTube2 className="h-6 w-6" />
               Điều trị hóa học
             </div>
-            <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200" />
           </AccordionTrigger>
           <AccordionContent className="p-6 pt-2">
             <div className="space-y-4">
@@ -320,7 +336,6 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
               <Sprout className="h-6 w-6" />
               Điều trị sinh học
             </div>
-            <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200" />
           </AccordionTrigger>
           <AccordionContent className="p-6 pt-2">
              <div className="space-y-4">
@@ -343,12 +358,24 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
 function DiagnosisSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <Skeleton className="h-4 w-1/3 rounded-md" />
-        <Skeleton className="h-8 w-3/4 rounded-md" />
-        <Skeleton className="h-12 w-full rounded-lg" />
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-12 w-12 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-6 w-56" />
+          </div>
+        </div>
       </div>
-      <div className="space-y-3">
+      <Skeleton className="h-12 w-full rounded-lg" />
+      <div className="space-y-3 pt-2">
         <Skeleton className="h-5 w-1/4 mb-4 rounded-md" />
         <Skeleton className="h-5 w-full rounded-md" />
         <Skeleton className="h-5 w-full rounded-md" />
@@ -362,22 +389,10 @@ function TreatmentSkeleton() {
   return (
     <div className="space-y-8 pt-6">
       <div className="space-y-3">
-        <Skeleton className="h-6 w-1/3 mb-4 rounded-md" />
-        <Skeleton className="h-4 w-full rounded-md" />
-        <Skeleton className="h-4 w-full rounded-md" />
-        <Skeleton className="h-4 w-5/6 rounded-md" />
-        <div className="grid grid-cols-2 gap-3 pt-2">
-            <Skeleton className="h-16 w-full rounded-lg" />
-            <Skeleton className="h-16 w-full rounded-lg" />
-        </div>
+        <Skeleton className="h-12 w-full rounded-lg" />
       </div>
        <div className="space-y-3">
-        <Skeleton className="h-6 w-1/3 mb-4 rounded-md" />
-        <Skeleton className="h-4 w-full rounded-md" />
-        <Skeleton className="h-4 w-5/6 rounded-md" />
-         <div className="grid grid-cols-2 gap-3 pt-2">
-            <Skeleton className="h-16 w-full rounded-lg" />
-        </div>
+        <Skeleton className="h-12 w-full rounded-lg" />
       </div>
     </div>
   );
