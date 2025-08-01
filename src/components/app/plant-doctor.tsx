@@ -39,12 +39,14 @@ export function PlantDoctor() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
   const [treatment, setTreatment] = useState<Treatment | null>(null);
+  const [showUploader, setShowUploader] = useState(true);
 
   const resetState = useCallback(() => {
     setError(null);
     setImagePreview(null);
     setDiagnosis(null);
     setTreatment(null);
+    setShowUploader(true);
   }, []);
 
   const onGetTreatment = useCallback((diag: Diagnosis) => {
@@ -67,6 +69,7 @@ export function PlantDoctor() {
 
   const onDiagnose = (file: File) => {
     resetState();
+    setShowUploader(false);
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
@@ -76,11 +79,12 @@ export function PlantDoctor() {
         const result = await handleDiagnose(dataUri);
         if ('error' in result) {
           setError(result.error);
-          toast({
+           toast({
             variant: "destructive",
             title: "Chẩn đoán thất bại",
             description: result.error,
           });
+          setShowUploader(true);
         } else {
           setDiagnosis(result);
           onGetTreatment(result);
@@ -95,10 +99,10 @@ export function PlantDoctor() {
         title: "Lỗi tệp",
         description: 'Đã có sự cố khi đọc tệp ảnh của bạn.',
       });
+      setShowUploader(true);
     };
   };
 
-  // Save record to local storage when treatment is available
   useEffect(() => {
     if (diagnosis && treatment && imagePreview) {
       try {
@@ -122,65 +126,73 @@ export function PlantDoctor() {
 
   return (
     <div className="space-y-8">
-      <Card className="overflow-hidden shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Leaf className="text-primary w-5 h-5" />
-            </div>
-            <span>1. Tải lên ảnh cây trồng</span>
-          </CardTitle>
-          <CardDescription>Tải lên ảnh rõ nét của bộ phận cây bị bệnh để AI phân tích.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ImageUploader onDiagnose={onDiagnose} isPending={isDiagnosisPending} imagePreview={imagePreview} />
-        </CardContent>
-      </Card>
-      
-      {isDiagnosisPending && <DiagnosisSkeleton />}
-      
-      {diagnosis && (
-        <Card className="overflow-hidden shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <Bot className="text-primary w-5 h-5" />
-              </div>
-              <span>2. Chẩn đoán của AI</span>
-            </CardTitle>
-            <CardDescription>AI của chúng tôi đã phân tích hình ảnh của bạn. Đây là kết quả.</CardDescription>
-          </CardHeader>
-          <DiagnosisResult diagnosis={diagnosis} />
-        </Card>
-      )}
-
-      {isTreatmentPending && <TreatmentSkeleton />}
-      
-      {treatment && (
+      {showUploader ? (
          <Card className="overflow-hidden shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg">
-                <Sparkles className="text-primary w-5 h-5" />
+                <Leaf className="text-primary w-6 h-6" />
               </div>
-              <span>3. Kế hoạch điều trị</span>
+              <span className="text-xl font-semibold">Bắt đầu chẩn đoán</span>
             </CardTitle>
-            <CardDescription>Thực hiện theo các khuyến nghị này để giúp cây của bạn phục hồi.</CardDescription>
+            <CardDescription>Tải lên ảnh rõ nét của bộ phận cây bị bệnh để AI phân tích.</CardDescription>
           </CardHeader>
-          <TreatmentPlan treatment={treatment} />
+          <CardContent>
+            <ImageUploader onDiagnose={onDiagnose} isPending={isDiagnosisPending} />
+          </CardContent>
         </Card>
-      )}
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1 space-y-8">
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg">Ảnh đã tải lên</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {imagePreview && (
+                   <Image src={imagePreview} alt="Xem trước cây trồng" width={300} height={300} className="rounded-lg object-cover w-full shadow-md" data-ai-hint="plant disease" />
+                )}
+              </CardContent>
+            </Card>
+            <div className="text-center">
+              <Button variant="outline" onClick={resetState} disabled={isLoading}>
+                {isLoading ? 'Đang xử lý...' : 'Bắt đầu chẩn đoán mới'}
+              </Button>
+            </div>
+          </div>
+          
+          <div className="md:col-span-2 space-y-8">
+            <Card className="overflow-hidden shadow-lg">
+               <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2 rounded-lg">
+                    <Bot className="text-primary w-5 h-5" />
+                  </div>
+                  <span>Chẩn đoán của AI</span>
+                </CardTitle>
+              </CardHeader>
+              {isDiagnosisPending ? <DiagnosisSkeleton /> : diagnosis ? <DiagnosisResult diagnosis={diagnosis} /> : null}
+            </Card>
 
-      {(diagnosis || imagePreview) && !isLoading && (
-        <div className="text-center">
-          <Button variant="outline" onClick={resetState}>Bắt đầu chẩn đoán mới</Button>
+            <Card className="overflow-hidden shadow-lg">
+               <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2 rounded-lg">
+                    <Sparkles className="text-primary w-5 h-5" />
+                  </div>
+                  <span>Kế hoạch điều trị</span>
+                </CardTitle>
+              </CardHeader>
+              {isTreatmentPending ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (isDiagnosisPending ? <Skeleton className="h-4 w-48 mx-6 mb-6"/> : <CardContent><p className="text-muted-foreground">Đang chờ kết quả chẩn đoán...</p></CardContent>)}
+            </Card>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function ImageUploader({ onDiagnose, isPending, imagePreview }: { onDiagnose: (file: File) => void, isPending: boolean, imagePreview: string | null }) {
+function ImageUploader({ onDiagnose, isPending }: { onDiagnose: (file: File) => void, isPending: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,37 +217,29 @@ function ImageUploader({ onDiagnose, isPending, imagePreview }: { onDiagnose: (f
   };
 
   return (
-    <div>
-      <div 
-        className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onClick={() => inputRef.current?.click()}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-          disabled={isPending}
-        />
-        <div className="flex flex-col items-center gap-4">
-          <div className="bg-primary/10 p-4 rounded-full">
-            <UploadCloud className="h-8 w-8 text-primary" />
-          </div>
-          <p className="text-muted-foreground">Kéo và thả ảnh vào đây, hoặc nhấp để chọn tệp</p>
-          <p className="text-xs text-muted-foreground/80">Hỗ trợ PNG, JPG, và WEBP</p>
+    <div 
+      className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors bg-primary/5"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onClick={() => inputRef.current?.click()}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+        disabled={isPending}
+      />
+      <div className="flex flex-col items-center gap-4">
+        <div className="bg-primary/10 p-4 rounded-full">
+          <UploadCloud className="h-8 w-8 text-primary" />
         </div>
+        <p className="font-semibold text-muted-foreground">Kéo và thả ảnh vào đây</p>
+        <p className="text-muted-foreground/80">hoặc</p>
+        <Button disabled={isPending}>Nhấp để chọn tệp</Button>
+        <p className="text-xs text-muted-foreground/80 mt-2">Hỗ trợ PNG, JPG, và WEBP</p>
       </div>
-      {imagePreview && (
-        <div className="mt-6">
-          <h3 className="font-semibold mb-2 text-center">Xem trước ảnh:</h3>
-          <div className="flex justify-center">
-            <Image src={imagePreview} alt="Xem trước cây trồng" width={200} height={200} className="rounded-lg object-cover shadow-md" data-ai-hint="plant disease" />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -284,61 +288,39 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
 
 function DiagnosisSkeleton() {
   return (
-    <Card className="shadow-lg">
-      <CardHeader>
-         <CardTitle className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <Bot className="text-primary w-5 h-5" />
-              </div>
-              <span>Chẩn đoán của AI</span>
-            </CardTitle>
-        <CardDescription>AI của chúng tôi đang phân tích hình ảnh của bạn. Vui lòng đợi một lát.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-16 w-16 rounded-lg" />
-          <div className="space-y-2 flex-1">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-        </div>
-      </CardContent>
-    </Card>
+    <CardContent className="space-y-6 pt-6">
+      <div className="space-y-2 flex-1">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-1/4 mb-4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </div>
+    </CardContent>
   );
 }
 
 function TreatmentSkeleton() {
   return (
-     <Card className="shadow-lg">
-      <CardHeader>
-         <CardTitle className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <Sparkles className="text-primary w-5 h-5" />
-              </div>
-              <span>Kế hoạch điều trị</span>
-            </CardTitle>
-        <CardDescription>Đang tạo kế hoạch điều trị được cá nhân hóa cho cây của bạn...</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-8 pt-6">
-        <div className="space-y-3">
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-        </div>
-         <div className="space-y-3">
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-        </div>
-      </CardContent>
-    </Card>
+    <CardContent className="space-y-8 pt-6">
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </div>
+    </CardContent>
   );
 }
-
-    
