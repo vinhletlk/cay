@@ -21,7 +21,8 @@ type Diagnosis = {
 type Treatment = {
   chemicalTreatment: string;
   biologicalTreatment: string;
-  suggestedMedicines: string;
+  chemicalMedicines: string;
+  biologicalMedicines: string;
 };
 
 type PlantRecord = {
@@ -306,6 +307,10 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
         <div className="flex-1">
           <h4 className="font-semibold text-lg">Điều trị hóa học</h4>
           <p className="text-muted-foreground whitespace-pre-wrap">{treatment.chemicalTreatment}</p>
+          <div className="mt-4">
+            <h5 className="font-semibold flex items-center gap-2"><Pill className="h-4 w-4 text-primary" /> Thuốc đề xuất</h5>
+            <p className="text-muted-foreground whitespace-pre-wrap pl-6">{treatment.chemicalMedicines}</p>
+          </div>
         </div>
       </div>
        <div className="flex items-start gap-4">
@@ -315,15 +320,10 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
         <div className="flex-1">
           <h4 className="font-semibold text-lg">Điều trị sinh học</h4>
           <p className="text-muted-foreground whitespace-pre-wrap">{treatment.biologicalTreatment}</p>
-        </div>
-      </div>
-      <div className="flex items-start gap-4">
-        <div className="bg-primary/10 p-2 rounded-lg mt-1">
-          <Pill className="text-primary h-5 w-5" />
-        </div>
-        <div className="flex-1">
-          <h4 className="font-semibold text-lg">Thuốc được đề xuất</h4>
-          <p className="text-muted-foreground whitespace-pre-wrap">{treatment.suggestedMedicines}</p>
+          <div className="mt-4">
+            <h5 className="font-semibold flex items-center gap-2"><Pill className="h-4 w-4 text-primary" /> Thuốc đề xuất</h5>
+            <p className="text-muted-foreground whitespace-pre-wrap pl-6">{treatment.biologicalMedicines}</p>
+          </div>
         </div>
       </div>
     </CardContent>

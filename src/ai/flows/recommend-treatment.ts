@@ -24,9 +24,12 @@ const RecommendTreatmentOutputSchema = z.object({
   biologicalTreatment: z
     .string()
     .describe('Một khuyến nghị chi tiết cho phương pháp điều trị sinh học.'),
-  suggestedMedicines: z
+  chemicalMedicines: z
     .string()
-    .describe('Danh sách các loại thuốc hoặc sản phẩm được đề xuất cho cả hai phương pháp điều trị.'),
+    .describe('Danh sách các loại thuốc hóa học được đề xuất.'),
+  biologicalMedicines: z
+    .string()
+    .describe('Danh sách các loại thuốc sinh học được đề xuất.'),
 });
 export type RecommendTreatmentOutput = z.infer<typeof RecommendTreatmentOutputSchema>;
 
@@ -46,7 +49,7 @@ const prompt = ai.definePrompt({
   Triệu chứng: {{{symptoms}}}
 
   Cung cấp các đề xuất riêng biệt cho phương pháp điều trị hóa học và sinh học trong các trường tương ứng.
-  Đưa ra các khuyến nghị sản phẩm cụ thể nếu có thể trong trường thuốc đề xuất.
+  Đối với mỗi phương pháp, hãy liệt kê các loại thuốc cụ thể và cần thiết nhất trong các trường 'chemicalMedicines' và 'biologicalMedicines'.
 
   Đảm bảo lời khuyên thiết thực và dễ thực hiện cho những người không phải là chuyên gia.
 
