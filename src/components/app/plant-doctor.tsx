@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState, useTransition } from 'react';
 import Image from 'next/image';
-import { Bot, CheckCircle, Info, Leaf, Pill, RefreshCw, ShieldAlert, Sparkles, Sprout, TestTube2, UploadCloud, AlertCircle } from 'lucide-react';
+import { Bot, CheckCircle, Info, Leaf, Pill, RefreshCw, ShieldAlert, Sparkles, Sprout, TestTube2, UploadCloud, AlertCircle, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleDiagnose, handleRecommend } from '@/app/actions';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 
 type Diagnosis = {
@@ -290,42 +291,50 @@ function MedicineCard({ medicine }: { medicine: Medicine }) {
 
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
-    <div className="space-y-6">
-      <Card className="border-t pt-6 border-dashed">
-        <CardHeader className="p-0">
-          <CardTitle className="flex items-center gap-3 text-lg text-blue-800 dark:text-blue-300">
-            <TestTube2 className="h-6 w-6" />
-            Điều trị hóa học
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4 space-y-4 px-0">
-          <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.chemicalTreatment}</p>
-          <div>
-            <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {treatment.chemicalMedicines.map((med, index) => <MedicineCard key={`chem-${index}`} medicine={med} />)}
+    <div className="space-y-4 border-t border-dashed pt-6">
+      <Accordion type="multiple" className="w-full space-y-4">
+        <AccordionItem value="chemical-treatment" className="border rounded-lg bg-card shadow-sm">
+          <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline text-blue-800 dark:text-blue-300">
+            <div className="flex items-center gap-3">
+              <TestTube2 className="h-6 w-6" />
+              Điều trị hóa học
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200" />
+          </AccordionTrigger>
+          <AccordionContent className="p-6 pt-2">
+            <div className="space-y-4">
+              <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.chemicalTreatment}</p>
+              <div>
+                <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {treatment.chemicalMedicines.map((med, index) => <MedicineCard key={`chem-${index}`} medicine={med} />)}
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
 
-      <Card className="border-t pt-6 border-dashed">
-        <CardHeader className="p-0">
-          <CardTitle className="flex items-center gap-3 text-lg text-green-800 dark:text-green-300">
-            <Sprout className="h-6 w-6" />
-            Điều trị sinh học
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4 space-y-4 px-0">
-          <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.biologicalTreatment}</p>
-          <div>
-            <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {treatment.biologicalMedicines.map((med, index) => <MedicineCard key={`bio-${index}`} medicine={med} />)}
+        <AccordionItem value="biological-treatment" className="border rounded-lg bg-card shadow-sm">
+          <AccordionTrigger className="p-4 text-lg font-semibold hover:no-underline text-green-800 dark:text-green-300">
+            <div className="flex items-center gap-3">
+              <Sprout className="h-6 w-6" />
+              Điều trị sinh học
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200" />
+          </AccordionTrigger>
+          <AccordionContent className="p-6 pt-2">
+             <div className="space-y-4">
+              <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.biologicalTreatment}</p>
+              <div>
+                <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {treatment.biologicalMedicines.map((med, index) => <MedicineCard key={`bio-${index}`} medicine={med} />)}
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }
