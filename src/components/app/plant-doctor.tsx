@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Sparkles, UploadCloud, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
@@ -119,10 +119,12 @@ export function PlantDoctor() {
 
   return (
     <div className="space-y-8">
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Leaf className="text-primary" />
+          <CardTitle className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <Leaf className="text-primary w-5 h-5" />
+            </div>
             <span>1. Tải lên ảnh cây trồng</span>
           </CardTitle>
           <CardDescription>Tải lên ảnh rõ nét của bộ phận cây bị bệnh để AI phân tích.</CardDescription>
@@ -135,10 +137,12 @@ export function PlantDoctor() {
       {isDiagnosisPending && <DiagnosisSkeleton />}
       
       {diagnosis && (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="text-primary" />
+            <CardTitle className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg">
+                <Bot className="text-primary w-5 h-5" />
+              </div>
               <span>2. Chẩn đoán của AI</span>
             </CardTitle>
             <CardDescription>AI của chúng tôi đã phân tích hình ảnh của bạn. Đây là kết quả.</CardDescription>
@@ -150,10 +154,12 @@ export function PlantDoctor() {
       {isTreatmentPending && <TreatmentSkeleton />}
       
       {treatment && (
-         <Card className="overflow-hidden">
+         <Card className="overflow-hidden shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="text-primary" />
+            <CardTitle className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg">
+                <Sparkles className="text-primary w-5 h-5" />
+              </div>
               <span>3. Kế hoạch điều trị</span>
             </CardTitle>
             <CardDescription>Thực hiện theo các khuyến nghị này để giúp cây của bạn phục hồi.</CardDescription>
@@ -198,7 +204,7 @@ function ImageUploader({ onDiagnose, isPending, imagePreview }: { onDiagnose: (f
   return (
     <div>
       <div 
-        className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:bg-muted transition-colors"
+        className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={() => inputRef.current?.click()}
@@ -212,14 +218,19 @@ function ImageUploader({ onDiagnose, isPending, imagePreview }: { onDiagnose: (f
           disabled={isPending}
         />
         <div className="flex flex-col items-center gap-4">
-          <UploadCloud className="h-12 w-12 text-muted-foreground" />
+          <div className="bg-primary/10 p-4 rounded-full">
+            <UploadCloud className="h-8 w-8 text-primary" />
+          </div>
           <p className="text-muted-foreground">Kéo và thả ảnh vào đây, hoặc nhấp để chọn tệp</p>
+          <p className="text-xs text-muted-foreground/80">Hỗ trợ PNG, JPG, và WEBP</p>
         </div>
       </div>
       {imagePreview && (
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Xem trước ảnh:</h3>
-          <Image src={imagePreview} alt="Xem trước cây trồng" width={200} height={200} className="rounded-lg object-cover" data-ai-hint="plant disease" />
+        <div className="mt-6">
+          <h3 className="font-semibold mb-2 text-center">Xem trước ảnh:</h3>
+          <div className="flex justify-center">
+            <Image src={imagePreview} alt="Xem trước cây trồng" width={200} height={200} className="rounded-lg object-cover shadow-md" data-ai-hint="plant disease" />
+          </div>
         </div>
       )}
     </div>
@@ -232,22 +243,22 @@ function DiagnosisResult({ diagnosis, onGetTreatment, isPending }: { diagnosis: 
 
   return (
     <>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div>
-          <h3 className="font-semibold text-lg">{diagnosis.diseaseName}</h3>
-          <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-xl">{diagnosis.diseaseName}</h3>
+          <div className="flex items-center gap-2 mt-1">
             <p className="text-sm text-muted-foreground">Mức độ tin cậy:</p>
             <p className={`font-bold text-lg ${confidenceColor}`}>{confidencePercent}%</p>
           </div>
-          <Progress value={confidencePercent} className="w-full h-2 mt-1" />
+          <Progress value={confidencePercent} className="w-full h-2 mt-2" />
         </div>
         <div>
           <h4 className="font-semibold">Mô tả</h4>
-          <p className="text-muted-foreground whitespace-pre-wrap">{diagnosis.description}</p>
+          <p className="text-muted-foreground whitespace-pre-wrap mt-1">{diagnosis.description}</p>
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={onGetTreatment} disabled={isPending} style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
+        <Button onClick={onGetTreatment} disabled={isPending} size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
           {isPending ? 'Đang tạo...' : 'Lấy kế hoạch điều trị'}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -259,13 +270,13 @@ function DiagnosisResult({ diagnosis, onGetTreatment, isPending }: { diagnosis: 
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <CardContent className="space-y-6">
-      <div>
-        <h4 className="font-semibold text-lg flex items-center gap-2"><CheckCircle className="text-primary h-5 w-5" /> Điều trị được đề xuất</h4>
-        <p className="text-muted-foreground whitespace-pre-wrap mt-2 pl-7">{treatment.treatmentRecommendation}</p>
+      <div className="space-y-2">
+        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-primary/10 p-2 rounded-lg"><CheckCircle className="text-primary h-5 w-5" /></div> <span>Điều trị được đề xuất</span></h4>
+        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.treatmentRecommendation}</p>
       </div>
-      <div>
-        <h4 className="font-semibold text-lg flex items-center gap-2"><XCircle className="text-primary h-5 w-5" /> Thuốc được đề xuất</h4>
-        <p className="text-muted-foreground whitespace-pre-wrap mt-2 pl-7">{treatment.suggestedMedicines}</p>
+      <div className="space-y-2">
+        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-primary/10 p-2 rounded-lg"><Pill className="text-primary h-5 w-5" /></div> <span>Thuốc được đề xuất</span></h4>
+        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.suggestedMedicines}</p>
       </div>
     </CardContent>
   );
@@ -274,25 +285,29 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
 
 function DiagnosisSkeleton() {
   return (
-    <Card>
+    <Card className="shadow-lg">
       <CardHeader>
-         <CardTitle className="flex items-center gap-2">
-              <Bot className="text-primary" />
+         <CardTitle className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg">
+                <Bot className="text-primary w-5 h-5" />
+              </div>
               <span>Chẩn đoán của AI</span>
             </CardTitle>
         <CardDescription>AI của chúng tôi đang phân tích hình ảnh của bạn. Vui lòng đợi một lát.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div className="flex items-center space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-16 w-16 rounded-lg" />
           <div className="space-y-2 flex-1">
-            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-6 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
           </div>
         </div>
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
       </CardContent>
     </Card>
   );
@@ -300,22 +315,25 @@ function DiagnosisSkeleton() {
 
 function TreatmentSkeleton() {
   return (
-     <Card>
+     <Card className="shadow-lg">
       <CardHeader>
-         <CardTitle className="flex items-center gap-2">
-              <Sparkles className="text-primary" />
+         <CardTitle className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg">
+                <Sparkles className="text-primary w-5 h-5" />
+              </div>
               <span>Kế hoạch điều trị</span>
             </CardTitle>
         <CardDescription>Đang tạo kế hoạch điều trị được cá nhân hóa cho cây của bạn...</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Skeleton className="h-6 w-1/3" />
+      <CardContent className="space-y-8 pt-6">
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-1/2" />
+          <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
         </div>
-         <div className="space-y-2">
-          <Skeleton className="h-6 w-1/3" />
+         <div className="space-y-3">
+          <Skeleton className="h-6 w-1/2" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
         </div>
