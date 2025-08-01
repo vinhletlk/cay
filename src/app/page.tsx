@@ -9,7 +9,7 @@ export default function Home() {
         <PlantDoctor />
       </main>
       <footer className="text-center p-4 text-muted-foreground text-sm">
-        Powered by AI. Always consult a professional for critical cases.
+        Được hỗ trợ bởi AI. Luôn tham khảo ý kiến chuyên gia cho các trường hợp quan trọng.
       </footer>
     </div>
   );

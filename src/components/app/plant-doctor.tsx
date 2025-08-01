@@ -59,7 +59,7 @@ export function PlantDoctor() {
           setError(result.error);
           toast({
             variant: "destructive",
-            title: "Diagnosis Failed",
+            title: "Chẩn đoán thất bại",
             description: result.error,
           });
         } else {
@@ -68,12 +68,12 @@ export function PlantDoctor() {
       });
     };
     reader.onerror = (error) => {
-      console.error('Error reading file:', error);
-      setError('Failed to read the image file.');
+      console.error('Lỗi đọc tệp:', error);
+      setError('Không thể đọc tệp ảnh.');
        toast({
         variant: "destructive",
-        title: "File Error",
-        description: 'There was an issue reading your image file.',
+        title: "Lỗi tệp",
+        description: 'Đã có sự cố khi đọc tệp ảnh của bạn.',
       });
     };
   };
@@ -86,7 +86,7 @@ export function PlantDoctor() {
         setError(result.error);
         toast({
           variant: "destructive",
-          title: "Recommendation Failed",
+          title: "Đề xuất thất bại",
           description: result.error,
         });
       } else {
@@ -110,7 +110,7 @@ export function PlantDoctor() {
         const updatedRecords = [newRecord, ...existingRecords];
         localStorage.setItem('plant_doctor_history', JSON.stringify(updatedRecords));
       } catch (e) {
-        console.error("Failed to save record to local storage:", e);
+        console.error("Không thể lưu bản ghi vào bộ nhớ cục bộ:", e);
       }
     }
   }, [diagnosis, treatment, imagePreview]);
@@ -123,9 +123,9 @@ export function PlantDoctor() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Leaf className="text-primary" />
-            <span>1. Upload Plant Image</span>
+            <span>1. Tải lên ảnh cây trồng</span>
           </CardTitle>
-          <CardDescription>Upload a clear photo of the affected plant part for AI analysis.</CardDescription>
+          <CardDescription>Tải lên ảnh rõ nét của bộ phận cây bị bệnh để AI phân tích.</CardDescription>
         </CardHeader>
         <CardContent>
           <ImageUploader onDiagnose={onDiagnose} isPending={isDiagnosisPending} imagePreview={imagePreview} />
@@ -139,9 +139,9 @@ export function PlantDoctor() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bot className="text-primary" />
-              <span>2. AI Diagnosis</span>
+              <span>2. Chẩn đoán của AI</span>
             </CardTitle>
-            <CardDescription>Our AI has analyzed your image. Here are the results.</CardDescription>
+            <CardDescription>AI của chúng tôi đã phân tích hình ảnh của bạn. Đây là kết quả.</CardDescription>
           </CardHeader>
           <DiagnosisResult diagnosis={diagnosis} onGetTreatment={onGetTreatment} isPending={isTreatmentPending} />
         </Card>
@@ -154,9 +154,9 @@ export function PlantDoctor() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="text-primary" />
-              <span>3. Treatment Plan</span>
+              <span>3. Kế hoạch điều trị</span>
             </CardTitle>
-            <CardDescription>Follow these recommendations to help your plant recover.</CardDescription>
+            <CardDescription>Thực hiện theo các khuyến nghị này để giúp cây của bạn phục hồi.</CardDescription>
           </CardHeader>
           <TreatmentPlan treatment={treatment} />
         </Card>
@@ -164,7 +164,7 @@ export function PlantDoctor() {
 
       {(diagnosis || imagePreview) && !isLoading && (
         <div className="text-center">
-          <Button variant="outline" onClick={resetState}>Start New Diagnosis</Button>
+          <Button variant="outline" onClick={resetState}>Bắt đầu chẩn đoán mới</Button>
         </div>
       )}
     </div>
@@ -213,13 +213,13 @@ function ImageUploader({ onDiagnose, isPending, imagePreview }: { onDiagnose: (f
         />
         <div className="flex flex-col items-center gap-4">
           <UploadCloud className="h-12 w-12 text-muted-foreground" />
-          <p className="text-muted-foreground">Drag & drop an image here, or click to select a file</p>
+          <p className="text-muted-foreground">Kéo và thả ảnh vào đây, hoặc nhấp để chọn tệp</p>
         </div>
       </div>
       {imagePreview && (
         <div className="mt-4">
-          <h3 className="font-semibold mb-2">Image Preview:</h3>
-          <Image src={imagePreview} alt="Plant preview" width={200} height={200} className="rounded-lg object-cover" data-ai-hint="plant disease" />
+          <h3 className="font-semibold mb-2">Xem trước ảnh:</h3>
+          <Image src={imagePreview} alt="Xem trước cây trồng" width={200} height={200} className="rounded-lg object-cover" data-ai-hint="plant disease" />
         </div>
       )}
     </div>
@@ -236,19 +236,19 @@ function DiagnosisResult({ diagnosis, onGetTreatment, isPending }: { diagnosis: 
         <div>
           <h3 className="font-semibold text-lg">{diagnosis.diseaseName}</h3>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">Confidence Level:</p>
+            <p className="text-sm text-muted-foreground">Mức độ tin cậy:</p>
             <p className={`font-bold text-lg ${confidenceColor}`}>{confidencePercent}%</p>
           </div>
           <Progress value={confidencePercent} className="w-full h-2 mt-1" />
         </div>
         <div>
-          <h4 className="font-semibold">Description</h4>
+          <h4 className="font-semibold">Mô tả</h4>
           <p className="text-muted-foreground whitespace-pre-wrap">{diagnosis.description}</p>
         </div>
       </CardContent>
       <CardFooter>
         <Button onClick={onGetTreatment} disabled={isPending} style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} className="hover:opacity-90">
-          {isPending ? 'Generating...' : 'Get Treatment Plan'}
+          {isPending ? 'Đang tạo...' : 'Lấy kế hoạch điều trị'}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
@@ -260,11 +260,11 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <CardContent className="space-y-6">
       <div>
-        <h4 className="font-semibold text-lg flex items-center gap-2"><CheckCircle className="text-primary h-5 w-5" /> Recommended Treatment</h4>
+        <h4 className="font-semibold text-lg flex items-center gap-2"><CheckCircle className="text-primary h-5 w-5" /> Điều trị được đề xuất</h4>
         <p className="text-muted-foreground whitespace-pre-wrap mt-2 pl-7">{treatment.treatmentRecommendation}</p>
       </div>
       <div>
-        <h4 className="font-semibold text-lg flex items-center gap-2"><XCircle className="text-primary h-5 w-5" /> Suggested Medicines</h4>
+        <h4 className="font-semibold text-lg flex items-center gap-2"><XCircle className="text-primary h-5 w-5" /> Thuốc được đề xuất</h4>
         <p className="text-muted-foreground whitespace-pre-wrap mt-2 pl-7">{treatment.suggestedMedicines}</p>
       </div>
     </CardContent>
@@ -278,9 +278,9 @@ function DiagnosisSkeleton() {
       <CardHeader>
          <CardTitle className="flex items-center gap-2">
               <Bot className="text-primary" />
-              <span>AI Diagnosis</span>
+              <span>Chẩn đoán của AI</span>
             </CardTitle>
-        <CardDescription>Our AI is analyzing your image. Please wait a moment.</CardDescription>
+        <CardDescription>AI của chúng tôi đang phân tích hình ảnh của bạn. Vui lòng đợi một lát.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center space-x-4">
@@ -304,9 +304,9 @@ function TreatmentSkeleton() {
       <CardHeader>
          <CardTitle className="flex items-center gap-2">
               <Sparkles className="text-primary" />
-              <span>Treatment Plan</span>
+              <span>Kế hoạch điều trị</span>
             </CardTitle>
-        <CardDescription>Generating a personalized treatment plan for your plant...</CardDescription>
+        <CardDescription>Đang tạo kế hoạch điều trị được cá nhân hóa cho cây của bạn...</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
