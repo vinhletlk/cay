@@ -299,17 +299,32 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <CardContent className="space-y-6">
-      <div className="space-y-2">
-        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg"><TestTube2 className="text-blue-600 dark:text-blue-400 h-5 w-5" /></div> <span>Điều trị hóa học</span></h4>
-        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.chemicalTreatment}</p>
+      <div className="flex items-start gap-4">
+        <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg mt-1">
+          <TestTube2 className="text-blue-600 dark:text-blue-400 h-5 w-5" />
+        </div>
+        <div className="flex-1">
+          <h4 className="font-semibold text-lg">Điều trị hóa học</h4>
+          <p className="text-muted-foreground whitespace-pre-wrap">{treatment.chemicalTreatment}</p>
+        </div>
       </div>
-       <div className="space-y-2">
-        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg"><Sprout className="text-green-600 dark:text-green-400 h-5 w-5" /></div> <span>Điều trị sinh học</span></h4>
-        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.biologicalTreatment}</p>
+       <div className="flex items-start gap-4">
+        <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg mt-1">
+          <Sprout className="text-green-600 dark:text-green-400 h-5 w-5" />
+        </div>
+        <div className="flex-1">
+          <h4 className="font-semibold text-lg">Điều trị sinh học</h4>
+          <p className="text-muted-foreground whitespace-pre-wrap">{treatment.biologicalTreatment}</p>
+        </div>
       </div>
-      <div className="space-y-2">
-        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-primary/10 p-2 rounded-lg"><Pill className="text-primary h-5 w-5" /></div> <span>Thuốc được đề xuất</span></h4>
-        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.suggestedMedicines}</p>
+      <div className="flex items-start gap-4">
+        <div className="bg-primary/10 p-2 rounded-lg mt-1">
+          <Pill className="text-primary h-5 w-5" />
+        </div>
+        <div className="flex-1">
+          <h4 className="font-semibold text-lg">Thuốc được đề xuất</h4>
+          <p className="text-muted-foreground whitespace-pre-wrap">{treatment.suggestedMedicines}</p>
+        </div>
       </div>
     </CardContent>
   );
