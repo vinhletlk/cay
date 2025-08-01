@@ -23,7 +23,7 @@ export type DiagnoseDiseaseInput = z.infer<typeof DiagnoseDiseaseInputSchema>;
 const DiagnoseDiseaseOutputSchema = z.object({
   diseaseName: z.string().describe('Tên của bệnh được xác định, nếu có.'),
   confidence: z.number().describe('Mức độ tin cậy của việc xác định bệnh (0-1).'),
-  description: z.string().describe('Mô tả về bệnh, nguyên nhân và các phương pháp điều trị tiềm năng.'),
+  description: z.string().describe('Một đoạn văn mô tả về bệnh, nguyên nhân và các phương pháp điều trị tiềm năng. Không sử dụng danh sách có thứ tự.'),
 });
 export type DiagnoseDiseaseOutput = z.infer<typeof DiagnoseDiseaseOutputSchema>;
 
@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   output: {schema: DiagnoseDiseaseOutputSchema},
   prompt: `Bạn là một chuyên gia bệnh học thực vật. Hãy phân tích hình ảnh được cung cấp về một loại cây và xác định bất kỳ bệnh tiềm ẩn nào.
 
-  Cung cấp tên bệnh, mức độ tin cậy (0-1), và mô tả chi tiết về bệnh, nguyên nhân và các phương pháp điều trị tiềm năng.
+  Cung cấp tên bệnh, mức độ tin cậy (0-1), và mô tả chi tiết về bệnh, nguyên nhân và các phương pháp điều trị tiềm năng dưới dạng một đoạn văn. Không sử dụng danh sách có số đầu dòng.
 
   Tất cả các phản hồi phải bằng tiếng Việt.
 
