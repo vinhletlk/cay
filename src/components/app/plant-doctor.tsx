@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info, ShieldAlert } from 'lucide-react';
+import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info, ShieldAlert, Loader } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { Badge, badgeVariants } from '@/components/ui/badge';
@@ -90,7 +90,7 @@ export function PlantDoctor() {
           setShowUploader(true);
         } else {
           setDiagnosis(result);
-          onGetTreatment(result);
+          // onGetTreatment(result); // Treatment is now fetched on user click
         }
       });
     };
@@ -156,8 +156,8 @@ export function PlantDoctor() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-8">
-                {isDiagnosisPending ? <DiagnosisSkeleton /> : diagnosis ? <DiagnosisResult diagnosis={diagnosis} /> : null}
-                {isTreatmentPending ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (isDiagnosisPending ? <Skeleton className="h-4 w-48"/> : <p className="text-muted-foreground">Đang chờ kết quả chẩn đoán...</p>)}
+                {isDiagnosisPending ? <DiagnosisSkeleton /> : diagnosis ? <DiagnosisResult diagnosis={diagnosis} onGetTreatment={() => onGetTreatment(diagnosis)} isTreatmentPending={isTreatmentPending} /> : null}
+                {isTreatmentPending ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (diagnosis && !isDiagnosisPending) ? null : <p className="text-muted-foreground">Đang chờ kết quả chẩn đoán...</p>}
               </CardContent>
             </Card>
           </div>
@@ -219,7 +219,7 @@ function ImageUploader({ onDiagnose, isPending }: { onDiagnose: (file: File) => 
   );
 }
 
-function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
+function DiagnosisResult({ diagnosis, onGetTreatment, isTreatmentPending }: { diagnosis: Diagnosis, onGetTreatment: () => void, isTreatmentPending: boolean }) {
   const confidencePercent = Math.round(diagnosis.confidence * 100);
   
   const getConfidenceIcon = (confidence: number) => {
@@ -257,6 +257,21 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
                 <span className="text-lg font-bold text-foreground">{confidencePercent}%</span>
             </div>
         </div>
+      </div>
+       <div className="pt-4 flex justify-center">
+        <Button onClick={onGetTreatment} disabled={isTreatmentPending} size="lg">
+          {isTreatmentPending ? (
+            <>
+              <Loader className="mr-2 h-4 w-4 animate-spin" />
+              Đang tìm phương pháp...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Xem phương pháp điều trị
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );
