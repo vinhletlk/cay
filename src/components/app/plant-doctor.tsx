@@ -6,9 +6,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout } from 'lucide-react';
+import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type Diagnosis = {
   diseaseName: string;
@@ -246,25 +248,53 @@ function ImageUploader({ onDiagnose, isPending }: { onDiagnose: (file: File) => 
 
 function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   const confidencePercent = Math.round(diagnosis.confidence * 100);
-  const confidenceColor = confidencePercent > 75 ? 'text-green-600' : confidencePercent > 50 ? 'text-yellow-600' : 'text-red-600';
+  
+  const getConfidenceBadgeVariant = (confidence: number) => {
+    if (confidence > 75) return "success";
+    if (confidence > 50) return "warning";
+    return "destructive";
+  };
+  
+  const getConfidenceIcon = (confidence: number) => {
+    if (confidence > 75) return <CheckCircle className="h-4 w-4 text-green-500" />;
+    if (confidence > 50) return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+    return <XCircle className="h-4 w-4 text-red-500" />;
+  }
 
   return (
-      <CardContent className="space-y-6">
+    <CardContent className="space-y-4">
+      <Alert variant={confidencePercent < 50 ? 'destructive' : 'default'} className="bg-card">
+        {getConfidenceIcon(confidencePercent)}
+        <AlertTitle className="font-bold text-lg">{diagnosis.diseaseName}</AlertTitle>
+        <AlertDescription>
+          AI đã xác định bệnh này với độ tin cậy là {confidencePercent}%.
+        </AlertDescription>
+      </Alert>
+      
+      <div className="space-y-4">
         <div>
-          <h3 className="font-semibold text-xl">{diagnosis.diseaseName}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-sm text-muted-foreground">Mức độ tin cậy:</p>
-            <p className={`font-bold text-lg ${confidenceColor}`}>{confidencePercent}%</p>
-          </div>
-          <Progress value={confidencePercent} className="w-full h-2 mt-2" />
+            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" />
+                Mô tả chi tiết
+            </h4>
+            <p className="text-muted-foreground text-sm whitespace-pre-wrap pl-7">{diagnosis.description}</p>
         </div>
+
         <div>
-          <h4 className="font-semibold">Mô tả</h4>
-          <p className="text-muted-foreground whitespace-pre-wrap mt-1">{diagnosis.description}</p>
+            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Mức độ tin cậy
+            </h4>
+            <div className="flex items-center gap-3 pl-7">
+                <Progress value={confidencePercent} className="w-full h-3" />
+                <Badge variant="outline" className="text-lg font-bold">{confidencePercent}%</Badge>
+            </div>
         </div>
-      </CardContent>
+      </div>
+    </CardContent>
   );
 }
+
 
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
