@@ -18,12 +18,15 @@ const RecommendTreatmentInputSchema = z.object({
 export type RecommendTreatmentInput = z.infer<typeof RecommendTreatmentInputSchema>;
 
 const RecommendTreatmentOutputSchema = z.object({
-  treatmentRecommendation: z
+  chemicalTreatment: z
     .string()
-    .describe('Một khuyến nghị chi tiết để điều trị bệnh cây trồng.'),
+    .describe('Một khuyến nghị chi tiết cho phương pháp điều trị hóa học.'),
+  biologicalTreatment: z
+    .string()
+    .describe('Một khuyến nghị chi tiết cho phương pháp điều trị sinh học.'),
   suggestedMedicines: z
     .string()
-    .describe('Danh sách các loại thuốc hoặc phương pháp điều trị được đề xuất cho bệnh.'),
+    .describe('Danh sách các loại thuốc hoặc sản phẩm được đề xuất cho cả hai phương pháp điều trị.'),
 });
 export type RecommendTreatmentOutput = z.infer<typeof RecommendTreatmentOutputSchema>;
 
@@ -42,7 +45,8 @@ const prompt = ai.definePrompt({
   Bệnh: {{{diseaseName}}}
   Triệu chứng: {{{symptoms}}}
 
-  Xem xét các phương pháp điều trị hữu cơ và hóa học, và đưa ra các khuyến nghị sản phẩm cụ thể nếu có thể.
+  Cung cấp các đề xuất riêng biệt cho phương pháp điều trị hóa học và sinh học trong các trường tương ứng.
+  Đưa ra các khuyến nghị sản phẩm cụ thể nếu có thể trong trường thuốc đề xuất.
 
   Đảm bảo lời khuyên thiết thực và dễ thực hiện cho những người không phải là chuyên gia.
 

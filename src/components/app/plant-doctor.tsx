@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
@@ -17,7 +17,8 @@ type Diagnosis = {
 };
 
 type Treatment = {
-  treatmentRecommendation: string;
+  chemicalTreatment: string;
+  biologicalTreatment: string;
   suggestedMedicines: string;
 };
 
@@ -271,8 +272,12 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <CardContent className="space-y-6">
       <div className="space-y-2">
-        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-primary/10 p-2 rounded-lg"><CheckCircle className="text-primary h-5 w-5" /></div> <span>Điều trị được đề xuất</span></h4>
-        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.treatmentRecommendation}</p>
+        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg"><TestTube2 className="text-blue-600 dark:text-blue-400 h-5 w-5" /></div> <span>Điều trị hóa học</span></h4>
+        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.chemicalTreatment}</p>
+      </div>
+       <div className="space-y-2">
+        <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg"><Sprout className="text-green-600 dark:text-green-400 h-5 w-5" /></div> <span>Điều trị sinh học</span></h4>
+        <p className="text-muted-foreground whitespace-pre-wrap pl-12">{treatment.biologicalTreatment}</p>
       </div>
       <div className="space-y-2">
         <h4 className="font-semibold text-lg flex items-center gap-3"><div className="bg-primary/10 p-2 rounded-lg"><Pill className="text-primary h-5 w-5" /></div> <span>Thuốc được đề xuất</span></h4>
