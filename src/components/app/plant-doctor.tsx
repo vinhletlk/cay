@@ -124,7 +124,7 @@ export function PlantDoctor() {
                 )}
               </CardContent>
                <CardFooter className="flex justify-center">
-                 <Button className="bg-green-600 hover:bg-green-700 text-white font-bold w-full" onClick={resetState} disabled={isLoading}>
+                 <Button className="w-full" variant="secondary" onClick={resetState} disabled={isLoading}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     {isLoading ? 'Đang xử lý...' : 'Bắt đầu chẩn đoán mới'}
                   </Button>
@@ -182,7 +182,7 @@ function ImageUploaderCard({ onDiagnose, isPending }: { onDiagnose: (file: File)
   };
 
   return (
-    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 max-w-2xl mx-auto">
       <CardHeader className="bg-muted/30 border-b">
         <CardTitle className="flex items-center gap-3 text-xl">
           <Leaf className="text-primary w-6 h-6" />
@@ -223,87 +223,102 @@ function ImageUploaderCard({ onDiagnose, isPending }: { onDiagnose: (file: File)
 function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   const confidencePercent = Math.round(diagnosis.confidence * 100);
 
+  const getConfidenceBadge = (confidence: number) => {
+    if (confidence > 85) return "bg-green-100 text-green-800 border-green-300";
+    if (confidence > 60) return "bg-yellow-100 text-yellow-800 border-yellow-300";
+    return "bg-red-100 text-red-800 border-red-300";
+  };
+  
   return (
     <div className="space-y-6">
-      <Card className="bg-card border-2">
-        <CardHeader>
+      <Card className="bg-card border-none shadow-none">
+        <CardHeader className="p-0">
           <CardTitle className="text-2xl font-bold text-primary">{diagnosis.diseaseName}</CardTitle>
-           <CardDescription className="flex items-center gap-2 pt-2">
-              <Sparkles className="h-5 w-5 text-accent" />
-              <span className="font-semibold">Mức độ tin cậy của AI</span>
-            </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <Progress value={confidencePercent} className="w-full h-3" />
-            <span className="text-2xl font-bold text-foreground">{confidencePercent}%</span>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="space-y-4">
-        <div>
+        <CardContent className="p-0 mt-4 space-y-4">
+           <Alert className={cn("border-2", getConfidenceBadge(confidencePercent))}>
+              <Sparkles className="h-5 w-5" />
+              <AlertTitle className="font-semibold">Độ tin cậy của AI: {confidencePercent}%</AlertTitle>
+              <AlertDescription>
+                 <Progress value={confidencePercent} className="w-full h-2 mt-2" />
+              </AlertDescription>
+            </Alert>
+          
+          <div>
             <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
                 <Info className="h-5 w-5 text-primary" />
                 Mô tả chi tiết
             </h4>
             <p className="text-muted-foreground text-base whitespace-pre-wrap pl-7 leading-relaxed">{diagnosis.description}</p>
-        </div>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
 
-function MedicineBadge({ medicine }: { medicine: Medicine }) {
+function MedicineCard({ medicine }: { medicine: Medicine }) {
   const hazardClasses = {
     'Ít nguy hiểm': 'bg-green-100 text-green-800 border-green-200',
     'Nguy hiểm trung bình': 'bg-yellow-100 text-yellow-800 border-yellow-200',
     'Rất nguy hiểm': 'bg-red-100 text-red-800 border-red-200',
   };
 
+  const HazardIcon = ({ level }: { level: string }) => {
+    if (level === 'Rất nguy hiểm') return <ShieldAlert className="h-4 w-4 text-red-600" />;
+    if (level === 'Nguy hiểm trung bình') return <ShieldAlert className="h-4 w-4 text-yellow-600" />;
+    return <CheckCircle className="h-4 w-4 text-green-600" />;
+  };
+
   return (
-    <Badge className={cn("px-3 py-1 text-sm font-medium border", hazardClasses[medicine.hazardLevel])}>
-      <Pill className="h-4 w-4 mr-1.5" />
-      {medicine.name}
-    </Badge>
+     <Card className={cn("p-3 shadow-sm flex items-center gap-3", hazardClasses[medicine.hazardLevel])}>
+        <Pill className="h-5 w-5 flex-shrink-0" />
+        <div className="flex-grow">
+          <p className="font-semibold text-sm">{medicine.name}</p>
+          <div className="flex items-center gap-1.5 text-xs opacity-80">
+            <HazardIcon level={medicine.hazardLevel} />
+            <span>{medicine.hazardLevel}</span>
+          </div>
+        </div>
+      </Card>
   );
 }
 
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="bg-blue-500/5">
+      <Card className="border-none shadow-none">
+        <CardHeader className="p-0">
           <CardTitle className="flex items-center gap-3 text-lg text-blue-800 dark:text-blue-300">
             <TestTube2 className="h-5 w-5" />
             Điều trị hóa học
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 space-y-4">
+        <CardContent className="pt-4 space-y-4 px-0">
           <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.chemicalTreatment}</p>
           <div>
             <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
-            <div className="flex flex-wrap gap-2">
-              {treatment.chemicalMedicines.map((med, index) => <MedicineBadge key={`chem-${index}`} medicine={med} />)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {treatment.chemicalMedicines.map((med, index) => <MedicineCard key={`chem-${index}`} medicine={med} />)}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="bg-green-500/5">
+      <Card className="border-none shadow-none">
+        <CardHeader className="p-0">
           <CardTitle className="flex items-center gap-3 text-lg text-green-800 dark:text-green-300">
             <Sprout className="h-5 w-5" />
             Điều trị sinh học
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4 space-y-4">
+        <CardContent className="pt-4 space-y-4 px-0">
           <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.biologicalTreatment}</p>
           <div>
             <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
-            <div className="flex flex-wrap gap-2">
-              {treatment.biologicalMedicines.map((med, index) => <MedicineBadge key={`bio-${index}`} medicine={med} />)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {treatment.biologicalMedicines.map((med, index) => <MedicineCard key={`bio-${index}`} medicine={med} />)}
             </div>
           </div>
         </CardContent>
