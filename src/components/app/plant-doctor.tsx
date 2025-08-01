@@ -1,15 +1,14 @@
 'use client';
 
+import React, { useCallback, useState, useTransition } from 'react';
+import Image from 'next/image';
+import { Bot, CheckCircle, Info, Leaf, Pill, RefreshCw, ShieldAlert, Sparkles, Sprout, TestTube2, UploadCloud, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { handleDiagnose, handleRecommend } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info, ShieldAlert, RefreshCw } from 'lucide-react';
-import Image from 'next/image';
-import React, { useCallback, useState, useTransition } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
@@ -112,9 +111,8 @@ export function PlantDoctor() {
       {showUploader ? (
          <ImageUploaderCard onDiagnose={onDiagnose} isPending={isDiagnosisPending} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-          {/* Cột trái */}
-          <div className="md:col-span-1 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="lg:col-span-1 space-y-6">
             <Card className="shadow-lg sticky top-24">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Ảnh chẩn đoán</CardTitle>
@@ -125,7 +123,7 @@ export function PlantDoctor() {
                 )}
               </CardContent>
                <CardFooter className="flex justify-center">
-                 <Button className="w-full" variant="secondary" onClick={resetState} disabled={isLoading}>
+                 <Button className="w-full" onClick={resetState} disabled={isLoading}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     {isLoading ? 'Đang xử lý...' : 'Bắt đầu chẩn đoán mới'}
                   </Button>
@@ -133,12 +131,11 @@ export function PlantDoctor() {
             </Card>
           </div>
           
-          {/* Cột phải */}
-          <div className="md:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-8">
             <Card className="overflow-hidden shadow-lg">
                <CardHeader className="bg-muted/30">
                 <CardTitle className="flex items-center gap-3 text-xl">
-                  <Bot className="text-primary w-6 h-6" />
+                  <Bot className="text-primary w-7 h-7" />
                   <span className="font-bold">Kết quả Phân tích & Hướng điều trị</span>
                 </CardTitle>
               </CardHeader>
@@ -183,8 +180,8 @@ function ImageUploaderCard({ onDiagnose, isPending }: { onDiagnose: (file: File)
   };
 
   return (
-    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 max-w-2xl mx-auto">
-      <CardHeader className="bg-muted/30 border-b">
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 max-w-2xl mx-auto border-primary/20">
+      <CardHeader className="bg-primary/5 border-b border-primary/10">
         <CardTitle className="flex items-center gap-3 text-xl">
           <Leaf className="text-primary w-6 h-6" />
           <span>Bắt đầu chẩn đoán</span>
@@ -207,7 +204,9 @@ function ImageUploaderCard({ onDiagnose, isPending }: { onDiagnose: (file: File)
             disabled={isPending}
           />
           <div className="flex flex-col items-center gap-4 text-foreground">
-            <UploadCloud className="h-12 w-12 text-primary" />
+            <div className="p-4 bg-primary/10 rounded-full border-8 border-primary/5">
+                <UploadCloud className="h-12 w-12 text-primary" />
+            </div>
             <p className="font-semibold text-lg">Kéo và thả ảnh hoặc</p>
             <Button disabled={isPending} size="lg">
               {isPending ? 'Đang xử lý...' : 'Chọn tệp từ thiết bị'}
@@ -225,20 +224,20 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   const confidencePercent = Math.round(diagnosis.confidence * 100);
 
   const getConfidenceBadge = (confidence: number) => {
-    if (confidence > 85) return "bg-green-100 text-green-800 border-green-300";
-    if (confidence > 60) return "bg-yellow-100 text-yellow-800 border-yellow-300";
-    return "bg-red-100 text-red-800 border-red-300";
+    if (confidence > 85) return "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300";
+    if (confidence > 60) return "border-yellow-500/50 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300";
+    return "border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300";
   };
   
   return (
     <div className="space-y-6">
-      <Card className="bg-card border-none shadow-none">
+       <Card className="bg-card border-none shadow-none p-0">
         <CardHeader className="p-0">
-           <CardDescription className="text-md font-medium text-foreground">{diagnosis.plantName}</CardDescription>
-          <CardTitle className="text-2xl font-bold text-primary">{diagnosis.diseaseName}</CardTitle>
+           <CardDescription className="text-md font-medium text-primary">{diagnosis.plantName}</CardDescription>
+          <CardTitle className="text-3xl font-bold text-foreground">{diagnosis.diseaseName}</CardTitle>
         </CardHeader>
         <CardContent className="p-0 mt-4 space-y-4">
-           <Alert className={cn("border-2", getConfidenceBadge(confidencePercent))}>
+           <Alert className={cn("border-2 shadow-sm", getConfidenceBadge(confidencePercent))}>
               <Sparkles className="h-5 w-5" />
               <AlertTitle className="font-semibold">Độ tin cậy của AI: {confidencePercent}%</AlertTitle>
               <AlertDescription>
@@ -262,20 +261,22 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
 
 function MedicineCard({ medicine }: { medicine: Medicine }) {
   const hazardClasses = {
-    'Ít nguy hiểm': 'bg-green-100 text-green-800 border-green-200',
-    'Nguy hiểm trung bình': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'Rất nguy hiểm': 'bg-red-100 text-red-800 border-red-200',
+    'Ít nguy hiểm': 'bg-green-100/80 dark:bg-green-900/40 text-green-800 dark:text-green-200 border-green-200 dark:border-green-800',
+    'Nguy hiểm trung bình': 'bg-yellow-100/80 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-800',
+    'Rất nguy hiểm': 'bg-red-100/80 dark:bg-red-900/40 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800',
   };
 
   const HazardIcon = ({ level }: { level: string }) => {
-    if (level === 'Rất nguy hiểm') return <ShieldAlert className="h-4 w-4 text-red-600" />;
-    if (level === 'Nguy hiểm trung bình') return <ShieldAlert className="h-4 w-4 text-yellow-600" />;
-    return <CheckCircle className="h-4 w-4 text-green-600" />;
+    if (level === 'Rất nguy hiểm') return <ShieldAlert className="h-4 w-4 text-red-600 dark:text-red-400" />;
+    if (level === 'Nguy hiểm trung bình') return <ShieldAlert className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />;
+    return <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />;
   };
 
   return (
-     <Card className={cn("p-3 shadow-sm flex items-center gap-3", hazardClasses[medicine.hazardLevel])}>
-        <Pill className="h-5 w-5 flex-shrink-0" />
+     <Card className={cn("p-3 shadow-sm flex items-center gap-3 border", hazardClasses[medicine.hazardLevel])}>
+        <div className="p-2 bg-card rounded-md">
+            <Pill className="h-5 w-5 flex-shrink-0" />
+        </div>
         <div className="flex-grow">
           <p className="font-semibold text-sm">{medicine.name}</p>
           <div className="flex items-center gap-1.5 text-xs opacity-80">
@@ -290,10 +291,10 @@ function MedicineCard({ medicine }: { medicine: Medicine }) {
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <div className="space-y-6">
-      <Card className="border-none shadow-none">
+      <Card className="border-t pt-6 border-dashed">
         <CardHeader className="p-0">
           <CardTitle className="flex items-center gap-3 text-lg text-blue-800 dark:text-blue-300">
-            <TestTube2 className="h-5 w-5" />
+            <TestTube2 className="h-6 w-6" />
             Điều trị hóa học
           </CardTitle>
         </CardHeader>
@@ -301,17 +302,17 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
           <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.chemicalTreatment}</p>
           <div>
             <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {treatment.chemicalMedicines.map((med, index) => <MedicineCard key={`chem-${index}`} medicine={med} />)}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-none shadow-none">
+      <Card className="border-t pt-6 border-dashed">
         <CardHeader className="p-0">
           <CardTitle className="flex items-center gap-3 text-lg text-green-800 dark:text-green-300">
-            <Sprout className="h-5 w-5" />
+            <Sprout className="h-6 w-6" />
             Điều trị sinh học
           </CardTitle>
         </CardHeader>
@@ -319,7 +320,7 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
           <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.biologicalTreatment}</p>
           <div>
             <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {treatment.biologicalMedicines.map((med, index) => <MedicineCard key={`bio-${index}`} medicine={med} />)}
             </div>
           </div>
@@ -334,19 +335,15 @@ function DiagnosisSkeleton() {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <Skeleton className="h-4 w-1/3" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-5 w-1/2" />
+        <Skeleton className="h-4 w-1/3 rounded-md" />
+        <Skeleton className="h-8 w-3/4 rounded-md" />
+        <Skeleton className="h-12 w-full rounded-lg" />
       </div>
       <div className="space-y-3">
-        <Skeleton className="h-5 w-1/4 mb-4" />
-        <Skeleton className="h-5 w-full" />
-        <Skeleton className="h-5 w-full" />
-        <Skeleton className="h-5 w-5/6" />
-      </div>
-       <div className="space-y-3">
-        <Skeleton className="h-5 w-1/4 mb-4" />
-        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-1/4 mb-4 rounded-md" />
+        <Skeleton className="h-5 w-full rounded-md" />
+        <Skeleton className="h-5 w-full rounded-md" />
+        <Skeleton className="h-5 w-5/6 rounded-md" />
       </div>
     </div>
   );
@@ -355,22 +352,22 @@ function DiagnosisSkeleton() {
 function TreatmentSkeleton() {
   return (
     <div className="space-y-8 pt-6">
-      <div className="space-y-3 p-4 border rounded-lg">
-        <Skeleton className="h-6 w-1/3 mb-4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-        <div className="flex gap-2 pt-2">
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-6 w-28" />
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-1/3 mb-4 rounded-md" />
+        <Skeleton className="h-4 w-full rounded-md" />
+        <Skeleton className="h-4 w-full rounded-md" />
+        <Skeleton className="h-4 w-5/6 rounded-md" />
+        <div className="grid grid-cols-2 gap-3 pt-2">
+            <Skeleton className="h-16 w-full rounded-lg" />
+            <Skeleton className="h-16 w-full rounded-lg" />
         </div>
       </div>
-      <div className="space-y-3 p-4 border rounded-lg">
-        <Skeleton className="h-6 w-1/3 mb-4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
-         <div className="flex gap-2 pt-2">
-            <Skeleton className="h-6 w-24" />
+       <div className="space-y-3">
+        <Skeleton className="h-6 w-1/3 mb-4 rounded-md" />
+        <Skeleton className="h-4 w-full rounded-md" />
+        <Skeleton className="h-4 w-5/6 rounded-md" />
+         <div className="grid grid-cols-2 gap-3 pt-2">
+            <Skeleton className="h-16 w-full rounded-lg" />
         </div>
       </div>
     </div>
