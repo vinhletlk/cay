@@ -6,14 +6,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info, ShieldAlert, Loader } from 'lucide-react';
+import { AlertCircle, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info, ShieldAlert, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { Badge, badgeVariants } from '@/components/ui/badge';
+import React, { useCallback, useState, useTransition } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import type { VariantProps } from "class-variance-authority"
 import { cn } from '@/lib/utils';
-
 
 type Diagnosis = {
   diseaseName: string;
@@ -111,26 +109,14 @@ export function PlantDoctor() {
   return (
     <div className="space-y-8">
       {showUploader ? (
-         <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardHeader className="bg-muted/30 border-b">
-            <CardTitle className="flex items-center gap-3">
-              <div className="bg-primary/10 p-2 rounded-lg">
-                <Leaf className="text-primary w-6 h-6" />
-              </div>
-              <span className="text-xl font-bold">Bắt đầu chẩn đoán</span>
-            </CardTitle>
-            <CardDescription>Tải lên ảnh rõ nét của bộ phận cây bị bệnh để AI phân tích.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-4 md:p-6">
-            <ImageUploader onDiagnose={onDiagnose} isPending={isDiagnosisPending} />
-          </CardContent>
-        </Card>
+         <ImageUploaderCard onDiagnose={onDiagnose} isPending={isDiagnosisPending} />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          {/* Cột trái */}
+          <div className="md:col-span-1 space-y-6">
             <Card className="shadow-lg sticky top-24">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Ảnh đã tải lên</CardTitle>
+                <CardTitle className="text-lg font-semibold">Ảnh chẩn đoán</CardTitle>
               </CardHeader>
               <CardContent>
                 {imagePreview && (
@@ -138,52 +124,56 @@ export function PlantDoctor() {
                 )}
               </CardContent>
                <CardFooter className="flex justify-center">
-                 <Button variant="outline" onClick={resetState} disabled={isLoading}>
+                 <Button className="bg-green-600 hover:bg-green-700 text-white font-bold w-full" onClick={resetState} disabled={isLoading}>
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     {isLoading ? 'Đang xử lý...' : 'Bắt đầu chẩn đoán mới'}
                   </Button>
                </CardFooter>
             </Card>
           </div>
           
-          <div className="lg:col-span-3 space-y-8">
+          {/* Cột phải */}
+          <div className="md:col-span-2 space-y-8">
             <Card className="overflow-hidden shadow-lg">
                <CardHeader className="bg-muted/30">
-                <CardTitle className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2 rounded-lg">
-                    <Bot className="text-primary w-5 h-5" />
-                  </div>
-                  <span className="font-bold">Kết quả &amp; Hướng điều trị</span>
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <Bot className="text-primary w-6 h-6" />
+                  <span className="font-bold">Kết quả Phân tích & Hướng điều trị</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-8">
                 {isDiagnosisPending ? <DiagnosisSkeleton /> : diagnosis ? <DiagnosisResult diagnosis={diagnosis} /> : null}
-                {isTreatmentPending ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (diagnosis && !isDiagnosisPending) ? <TreatmentSkeleton /> : <p className="text-muted-foreground">Đang chờ kết quả chẩn đoán...</p>}
+                {isLoading ? <TreatmentSkeleton /> : treatment ? <TreatmentPlan treatment={treatment} /> : (diagnosis && !isDiagnosisPending) ? <TreatmentSkeleton /> : null}
               </CardContent>
             </Card>
           </div>
         </div>
       )}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Đã xảy ra lỗi</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
 
-function ImageUploader({ onDiagnose, isPending }: { onDiagnose: (file: File) => void, isPending: boolean }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+function ImageUploaderCard({ onDiagnose, isPending }: { onDiagnose: (file: File) => void, isPending: boolean }) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      onDiagnose(file);
-    }
+    if (file) onDiagnose(file);
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
+    if (isPending) return;
     const file = event.dataTransfer.files?.[0];
-    if (file) {
-      onDiagnose(file);
-    }
+    if (file) onDiagnose(file);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -192,70 +182,72 @@ function ImageUploader({ onDiagnose, isPending }: { onDiagnose: (file: File) => 
   };
 
   return (
-    <div 
-      className="border-2 border-dashed border-primary/20 rounded-xl p-8 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 ease-in-out bg-card"
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onClick={() => inputRef.current?.click()}
-    >
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileChange}
-        disabled={isPending}
-      />
-      <div className="flex flex-col items-center gap-4 text-foreground">
-        <div className="bg-primary/10 p-4 rounded-full border-8 border-primary/5">
-          <UploadCloud className="h-10 w-10 text-primary" />
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <CardHeader className="bg-muted/30 border-b">
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <Leaf className="text-primary w-6 h-6" />
+          <span>Bắt đầu chẩn đoán</span>
+        </CardTitle>
+        <CardDescription>Tải lên ảnh rõ nét của bộ phận cây bị bệnh để AI phân tích.</CardDescription>
+      </CardHeader>
+      <CardContent className="p-6">
+        <div 
+          className="border-2 border-dashed border-primary/20 rounded-xl p-8 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 ease-in-out bg-card"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onClick={() => !isPending && inputRef.current?.click()}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+            disabled={isPending}
+          />
+          <div className="flex flex-col items-center gap-4 text-foreground">
+            <UploadCloud className="h-12 w-12 text-primary" />
+            <p className="font-semibold text-lg">Kéo và thả ảnh hoặc</p>
+            <Button disabled={isPending} size="lg">
+              {isPending ? 'Đang xử lý...' : 'Chọn tệp từ thiết bị'}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">Hỗ trợ PNG, JPG, WEBP. Tối đa 5MB.</p>
+          </div>
         </div>
-        <p className="font-semibold text-lg">Kéo và thả ảnh vào đây</p>
-        <p className="text-muted-foreground">hoặc</p>
-        <Button disabled={isPending} size="lg">Nhấp để chọn tệp</Button>
-        <p className="text-xs text-muted-foreground mt-2">Hỗ trợ PNG, JPG, và WEBP. Kích thước tối đa 5MB.</p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
+
 function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
   const confidencePercent = Math.round(diagnosis.confidence * 100);
-  
-  const getConfidenceIcon = (confidence: number) => {
-    if (confidence > 75) return <CheckCircle className="h-5 w-5 text-green-500" />;
-    if (confidence > 50) return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-    return <XCircle className="h-5 w-5 text-red-500" />;
-  }
 
   return (
     <div className="space-y-6">
-      <Alert variant={confidencePercent < 50 ? 'destructive' : 'default'} className="bg-card border-2">
-        {getConfidenceIcon(confidencePercent)}
-        <AlertTitle className="font-bold text-xl">{diagnosis.diseaseName}</AlertTitle>
-        <AlertDescription className="text-base">
-          AI đã xác định bệnh này với độ tin cậy là {confidencePercent}%.
-        </AlertDescription>
-      </Alert>
+      <Card className="bg-card border-2">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-primary">{diagnosis.diseaseName}</CardTitle>
+           <CardDescription className="flex items-center gap-2 pt-2">
+              <Sparkles className="h-5 w-5 text-accent" />
+              <span className="font-semibold">Mức độ tin cậy của AI</span>
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Progress value={confidencePercent} className="w-full h-3" />
+            <span className="text-2xl font-bold text-foreground">{confidencePercent}%</span>
+          </div>
+        </CardContent>
+      </Card>
       
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
             <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
                 <Info className="h-5 w-5 text-primary" />
                 Mô tả chi tiết
             </h4>
             <p className="text-muted-foreground text-base whitespace-pre-wrap pl-7 leading-relaxed">{diagnosis.description}</p>
-        </div>
-
-        <div>
-            <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Mức độ tin cậy
-            </h4>
-            <div className="flex items-center gap-4 pl-7">
-                <Progress value={confidencePercent} className="w-full h-3" />
-                <span className="text-lg font-bold text-foreground">{confidencePercent}%</span>
-            </div>
         </div>
       </div>
     </div>
@@ -264,14 +256,15 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
 
 
 function MedicineBadge({ medicine }: { medicine: Medicine }) {
-  const hazardVariant: VariantProps<typeof badgeVariants>['variant'] =
-    medicine.hazardLevel === 'Ít nguy hiểm' ? 'success'
-    : medicine.hazardLevel === 'Nguy hiểm trung bình' ? 'warning'
-    : 'destructive';
+  const hazardClasses = {
+    'Ít nguy hiểm': 'bg-green-100 text-green-800 border-green-200',
+    'Nguy hiểm trung bình': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'Rất nguy hiểm': 'bg-red-100 text-red-800 border-red-200',
+  };
 
   return (
-    <Badge variant={hazardVariant} className="px-3 py-1 text-sm">
-      <ShieldAlert className="h-4 w-4 mr-1.5" />
+    <Badge className={cn("px-3 py-1 text-sm font-medium border", hazardClasses[medicine.hazardLevel])}>
+      <Pill className="h-4 w-4 mr-1.5" />
       {medicine.name}
     </Badge>
   );
@@ -280,37 +273,41 @@ function MedicineBadge({ medicine }: { medicine: Medicine }) {
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <div className="space-y-6">
-      <div className="p-4 rounded-lg border bg-blue-500/5 border-blue-500/20">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
-            <TestTube2 className="text-blue-600 dark:text-blue-400 h-5 w-5" />
+      <Card>
+        <CardHeader className="bg-blue-500/5">
+          <CardTitle className="flex items-center gap-3 text-lg text-blue-800 dark:text-blue-300">
+            <TestTube2 className="h-5 w-5" />
+            Điều trị hóa học
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 space-y-4">
+          <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.chemicalTreatment}</p>
+          <div>
+            <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
+            <div className="flex flex-wrap gap-2">
+              {treatment.chemicalMedicines.map((med, index) => <MedicineBadge key={`chem-${index}`} medicine={med} />)}
+            </div>
           </div>
-          <h4 className="font-bold text-lg text-blue-800 dark:text-blue-300">Điều trị hóa học</h4>
-        </div>
-        <p className="text-muted-foreground whitespace-pre-wrap mb-4 text-base leading-relaxed">{treatment.chemicalTreatment}</p>
-        <div>
-          <h5 className="font-semibold flex items-center gap-2 text-primary mb-2"><Pill className="h-5 w-5" /> Thuốc đề xuất</h5>
-          <div className="pl-7 flex flex-wrap gap-2">
-            {treatment.chemicalMedicines.map((med, index) => <MedicineBadge key={index} medicine={med} />)}
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-       <div className="p-4 rounded-lg border bg-green-500/5 border-green-500/20">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
-            <Sprout className="text-green-600 dark:text-green-400 h-5 w-5" />
+      <Card>
+        <CardHeader className="bg-green-500/5">
+          <CardTitle className="flex items-center gap-3 text-lg text-green-800 dark:text-green-300">
+            <Sprout className="h-5 w-5" />
+            Điều trị sinh học
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 space-y-4">
+          <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.biologicalTreatment}</p>
+          <div>
+            <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
+            <div className="flex flex-wrap gap-2">
+              {treatment.biologicalMedicines.map((med, index) => <MedicineBadge key={`bio-${index}`} medicine={med} />)}
+            </div>
           </div>
-          <h4 className="font-bold text-lg text-green-800 dark:text-green-300">Điều trị sinh học</h4>
-        </div>
-        <p className="text-muted-foreground whitespace-pre-wrap mb-4 text-base leading-relaxed">{treatment.biologicalTreatment}</p>
-        <div>
-          <h5 className="font-semibold flex items-center gap-2 text-primary mb-2"><Pill className="h-5 w-5" /> Thuốc đề xuất</h5>
-          <div className="pl-7 flex flex-wrap gap-2">
-            {treatment.biologicalMedicines.map((med, index) => <MedicineBadge key={index} medicine={med} />)}
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -345,11 +342,18 @@ function TreatmentSkeleton() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
+        <div className="flex gap-2 pt-2">
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-6 w-28" />
+        </div>
       </div>
       <div className="space-y-3 p-4 border rounded-lg">
         <Skeleton className="h-6 w-1/3 mb-4" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
+         <div className="flex gap-2 pt-2">
+            <Skeleton className="h-6 w-24" />
+        </div>
       </div>
     </div>
   );
