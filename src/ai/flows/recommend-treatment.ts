@@ -17,6 +17,12 @@ const RecommendTreatmentInputSchema = z.object({
 });
 export type RecommendTreatmentInput = z.infer<typeof RecommendTreatmentInputSchema>;
 
+const MedicineSchema = z.object({
+  name: z.string().describe('Tên của thuốc.'),
+  hazardLevel: z.enum(['Ít nguy hiểm', 'Nguy hiểm trung bình', 'Rất nguy hiểm'])
+    .describe('Mức độ nguy hại của thuốc.'),
+});
+
 const RecommendTreatmentOutputSchema = z.object({
   chemicalTreatment: z
     .string()
@@ -25,11 +31,11 @@ const RecommendTreatmentOutputSchema = z.object({
     .string()
     .describe('Một khuyến nghị chi tiết cho phương pháp điều trị sinh học.'),
   chemicalMedicines: z
-    .string()
-    .describe('Danh sách các loại thuốc hóa học được đề xuất.'),
+    .array(MedicineSchema)
+    .describe('Danh sách các loại thuốc hóa học được đề xuất, bao gồm tên và mức độ nguy hại.'),
   biologicalMedicines: z
-    .string()
-    .describe('Danh sách các loại thuốc sinh học được đề xuất.'),
+    .array(MedicineSchema)
+    .describe('Danh sách các loại thuốc sinh học được đề xuất, bao gồm tên và mức độ nguy hại.'),
 });
 export type RecommendTreatmentOutput = z.infer<typeof RecommendTreatmentOutputSchema>;
 
@@ -49,7 +55,7 @@ const prompt = ai.definePrompt({
   Triệu chứng: {{{symptoms}}}
 
   Cung cấp các đề xuất riêng biệt cho phương pháp điều trị hóa học và sinh học trong các trường tương ứng.
-  Đối với mỗi phương pháp, hãy liệt kê các loại thuốc cụ thể và cần thiết nhất trong các trường 'chemicalMedicines' và 'biologicalMedicines'.
+  Đối với mỗi phương pháp, hãy liệt kê các loại thuốc cụ thể và cần thiết nhất trong các trường 'chemicalMedicines' và 'biologicalMedicines'. Với mỗi loại thuốc, hãy cung cấp tên và mức độ nguy hại ('Ít nguy hiểm', 'Nguy hiểm trung bình', 'Rất nguy hiểm').
 
   Đảm bảo lời khuyên thiết thực và dễ thực hiện cho những người không phải là chuyên gia.
 

@@ -6,11 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info } from 'lucide-react';
+import { AlertCircle, ArrowRight, Bot, CheckCircle, Leaf, Pill, Sparkles, UploadCloud, XCircle, TestTube2, Sprout, Info, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { VariantProps } from "class-variance-authority"
+import { cn } from '@/lib/utils';
+
 
 type Diagnosis = {
   diseaseName: string;
@@ -18,11 +21,16 @@ type Diagnosis = {
   description: string;
 };
 
+type Medicine = {
+  name: string;
+  hazardLevel: 'Ít nguy hiểm' | 'Nguy hiểm trung bình' | 'Rất nguy hiểm';
+};
+
 type Treatment = {
   chemicalTreatment: string;
   biologicalTreatment: string;
-  chemicalMedicines: string;
-  biologicalMedicines: string;
+  chemicalMedicines: Medicine[];
+  biologicalMedicines: Medicine[];
 };
 
 export function PlantDoctor() {
@@ -255,6 +263,20 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
 }
 
 
+function MedicineBadge({ medicine }: { medicine: Medicine }) {
+  const hazardVariant: VariantProps<typeof badgeVariants>['variant'] =
+    medicine.hazardLevel === 'Ít nguy hiểm' ? 'success'
+    : medicine.hazardLevel === 'Nguy hiểm trung bình' ? 'warning'
+    : 'destructive';
+
+  return (
+    <Badge variant={hazardVariant} className="px-3 py-1 text-sm">
+      <ShieldAlert className="h-4 w-4 mr-1.5" />
+      {medicine.name}
+    </Badge>
+  );
+}
+
 function TreatmentPlan({ treatment }: { treatment: Treatment }) {
   return (
     <div className="space-y-6">
@@ -268,7 +290,9 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
         <p className="text-muted-foreground whitespace-pre-wrap mb-4 text-base leading-relaxed">{treatment.chemicalTreatment}</p>
         <div>
           <h5 className="font-semibold flex items-center gap-2 text-primary mb-2"><Pill className="h-5 w-5" /> Thuốc đề xuất</h5>
-          <p className="text-muted-foreground whitespace-pre-wrap pl-7 text-base leading-relaxed">{treatment.chemicalMedicines}</p>
+          <div className="pl-7 flex flex-wrap gap-2">
+            {treatment.chemicalMedicines.map((med, index) => <MedicineBadge key={index} medicine={med} />)}
+          </div>
         </div>
       </div>
 
@@ -281,9 +305,11 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
         </div>
         <p className="text-muted-foreground whitespace-pre-wrap mb-4 text-base leading-relaxed">{treatment.biologicalTreatment}</p>
         <div>
-            <h5 className="font-semibold flex items-center gap-2 text-primary mb-2"><Pill className="h-5 w-5" /> Thuốc đề xuất</h5>
-            <p className="text-muted-foreground whitespace-pre-wrap pl-7 text-base leading-relaxed">{treatment.biologicalMedicines}</p>
+          <h5 className="font-semibold flex items-center gap-2 text-primary mb-2"><Pill className="h-5 w-5" /> Thuốc đề xuất</h5>
+          <div className="pl-7 flex flex-wrap gap-2">
+            {treatment.biologicalMedicines.map((med, index) => <MedicineBadge key={index} medicine={med} />)}
           </div>
+        </div>
       </div>
     </div>
   );
@@ -328,5 +354,3 @@ function TreatmentSkeleton() {
     </div>
   );
 }
-
-    
