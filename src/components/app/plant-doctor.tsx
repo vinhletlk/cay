@@ -319,6 +319,13 @@ function TreatmentPlan({ treatment }: { treatment: Treatment }) {
           </AccordionTrigger>
           <AccordionContent className="p-6 pt-2">
             <div className="space-y-4">
+               <Alert variant="destructive" className="bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:border-yellow-800 dark:text-yellow-200 [&>svg]:text-yellow-600">
+                <ShieldAlert className="h-4 w-4" />
+                <AlertTitle className="font-bold">Lưu ý quan trọng</AlertTitle>
+                <AlertDescription>
+                  Luôn tuân thủ nghiêm ngặt hướng dẫn sử dụng và an toàn của nhà sản xuất khi sử dụng bất kỳ loại thuốc hóa học nào. Đeo đồ bảo hộ đầy đủ (găng tay, khẩu trang, kính bảo hộ) trong quá trình phun thuốc.
+                </AlertDescription>
+              </Alert>
               <p className="text-muted-foreground whitespace-pre-wrap text-base leading-relaxed">{treatment.chemicalTreatment}</p>
               <div>
                 <h5 className="font-semibold mb-3">Thuốc gợi ý:</h5>
@@ -397,3 +404,5 @@ function TreatmentSkeleton() {
     </div>
   );
 }
+
+    
