@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 type Diagnosis = {
+  plantName: string;
   diseaseName: string;
   confidence: number;
   description: string;
@@ -233,6 +234,7 @@ function DiagnosisResult({ diagnosis }: { diagnosis: Diagnosis }) {
     <div className="space-y-6">
       <Card className="bg-card border-none shadow-none">
         <CardHeader className="p-0">
+           <CardDescription className="text-md font-medium text-foreground">{diagnosis.plantName}</CardDescription>
           <CardTitle className="text-2xl font-bold text-primary">{diagnosis.diseaseName}</CardTitle>
         </CardHeader>
         <CardContent className="p-0 mt-4 space-y-4">
@@ -332,6 +334,7 @@ function DiagnosisSkeleton() {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
+        <Skeleton className="h-4 w-1/3" />
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-5 w-1/2" />
       </div>
